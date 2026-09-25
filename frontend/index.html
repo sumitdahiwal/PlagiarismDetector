@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Plagiarism Detection System</title>
+
+    <link
+        rel="stylesheet"
+        href="/frontend/style.css"
+    >
+
+</head>
+
+<body>
+
+    <!-- ========================================
+         HEADER
+    ========================================= -->
+
+    <header class="header">
+
+        <div class="header-content">
+
+            <div class="logo">
+                🔍
+            </div>
+
+            <div>
+
+                <h1>
+                    Plagiarism Detection System
+                </h1>
+
+                <p>
+                    DAA-Based Document Similarity Analysis
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="system-status">
+
+            <span class="status-dot"></span>
+
+            System Ready
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================
+         MAIN
+    ========================================= -->
+
+    <main class="container">
+
+
+        <!-- ====================================
+             HERO
+        ===================================== -->
+
+        <section class="hero">
+
+            <h2>
+                Document Similarity Dashboard
+            </h2>
+
+            <p>
+                Analyze multiple documents using efficient
+                Data Structures and Algorithms to detect
+                possible plagiarism.
+            </p>
+
+            <button
+                id="analyzeButton"
+                class="analyze-button"
+            >
+                🔍 Analyze Documents
+            </button>
+
+        </section>
+
+
+        <!-- ====================================
+             UPLOAD DOCUMENTS
+        ===================================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    📤 Upload Documents
+                </h3>
+
+            </div>
+
+
+            <div class="upload-area">
+
+                <div class="upload-icon">
+                    📄
+                </div>
+
+                <h3>
+                    Upload TXT Documents
+                </h3>
+
+                <p>
+                    Select one or multiple .txt files
+                    for plagiarism analysis.
+                </p>
+
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    accept=".txt,text/plain"
+                    multiple
+                    hidden
+                >
+
+
+                <button
+                    id="chooseFilesButton"
+                    class="secondary-button"
+                >
+                    📁 Choose Files
+                </button>
+
+
+                <button
+                    id="uploadButton"
+                    class="upload-button"
+                    disabled
+                >
+                    ⬆ Upload Documents
+                </button>
+
+
+                <button
+                    id="clearDocumentsButton"
+                    class="clear-button"
+                >
+                    🗑 Clear Documents
+                </button>
+
+            </div>
+
+
+            <!-- SELECTED FILES -->
+
+            <div
+                id="selectedFiles"
+                class="selected-files"
+            >
+
+                <div class="empty-files">
+                    No files selected.
+                </div>
+
+            </div>
+
+
+            <!-- UPLOAD STATUS -->
+
+            <div
+                id="uploadStatus"
+                class="upload-status"
+            >
+            </div>
+
+        </section>
+
+
+        <!-- ====================================
+             DOCUMENT LIST
+        ===================================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    📚 Documents Available for Analysis
+                </h3>
+
+            </div>
+
+            <div
+                id="documentList"
+                class="document-list"
+            >
+
+                <div class="empty-files">
+                    Loading documents...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================
+             SUMMARY CARDS
+        ===================================== -->
+
+        <section class="cards">
+
+
+            <div class="card">
+
+                <div class="card-icon">
+                    📄
+                </div>
+
+                <div class="card-title">
+                    Documents
+                </div>
+
+                <div
+                    id="documentsCount"
+                    class="card-value"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-icon">
+                    🔗
+                </div>
+
+                <div class="card-title">
+                    Possible Pairs
+                </div>
+
+                <div
+                    id="possiblePairs"
+                    class="card-value"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-icon">
+                    🎯
+                </div>
+
+                <div class="card-title">
+                    Candidate Pairs
+                </div>
+
+                <div
+                    id="candidatePairs"
+                    class="card-value"
+                >
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="card-icon">
+                    ⚡
+                </div>
+
+                <div class="card-title">
+                    Pairs Avoided
+                </div>
+
+                <div
+                    id="pairsAvoided"
+                    class="card-value"
+                >
+                    -
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================
+             STATUS
+        ===================================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    Analysis Status
+                </h3>
+
+            </div>
+
+            <div
+                id="statusMessage"
+                class="status-message"
+            >
+
+                Click "Analyze Documents" to start
+                the analysis.
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================
+             RESULTS
+        ===================================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    Analysis Results
+                </h3>
+
+            </div>
+
+            <div
+                id="results"
+                class="results"
+            >
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        📊
+                    </div>
+
+                    <p>
+                        Analysis results will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================
+             RAW OUTPUT
+        ===================================== -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <h3>
+                    C++ Analysis Output
+                </h3>
+
+            </div>
+
+            <pre
+                id="rawOutput"
+                class="raw-output"
+            ></pre>
+
+        </section>
+
+    </main>
+
+
+    <!-- ========================================
+         FOOTER
+    ========================================= -->
+
+    <footer class="footer">
+
+        <p>
+
+            Plagiarism Detection System
+
+            <span>•</span>
+
+            DAA Project
+
+        </p>
+
+        <p>
+
+            Efficient Document Similarity Analysis
+
+        </p>
+
+    </footer>
+
+
+    <!-- ========================================
+         JAVASCRIPT
+    ========================================= -->
+
+    <script
+        src="/frontend/script.js"
+    ></script>
+
+</body>
+
+</html>
