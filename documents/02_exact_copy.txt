@@ -1,0 +1,5 @@
+Data Structures and Algorithms
+
+A data structure is a way of organizing information so that a computer program can store and use it efficiently. Choosing an appropriate structure can improve the speed and clarity of a solution. Arrays are useful when elements need to be accessed by index, while linked lists are helpful when insertions and deletions are frequent. The best choice depends on the operations a program performs most often.
+
+An algorithm is a sequence of steps used to solve a problem. When comparing algorithms, developers commonly consider time complexity and space complexity. Time complexity describes how the number of operations grows as the input becomes larger. Space complexity describes how much additional memory is required. Testing with different input sizes can help reveal whether an approach will remain practical.

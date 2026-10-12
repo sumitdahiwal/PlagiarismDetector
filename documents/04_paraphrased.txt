@@ -1,0 +1,5 @@
+Organizing Data and Designing Algorithms
+
+Programs need effective ways to arrange information so that it can be retrieved and modified without unnecessary work. An array allows quick access through a numeric position. A linked list may be more convenient when items are regularly added or removed. Therefore, the structure should be selected according to the tasks that the application needs to perform.
+
+Solutions can also be evaluated by examining how their resource requirements change with input size. Runtime growth is described by time complexity, whereas memory usage is discussed through space complexity. Running experiments on small and large inputs provides useful evidence about whether an algorithm is suitable for real-world workloads.

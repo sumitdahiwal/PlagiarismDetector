@@ -1,0 +1,5 @@
+Why Efficient Problem Solving Matters
+
+Computer science students often learn to break a complicated task into smaller steps. A clear plan makes it easier to check whether each part behaves correctly. Some solutions are simple but slow on large inputs, while others require more planning yet finish much faster.
+
+When choosing between approaches, it is useful to measure execution time and memory consumption. Developers should also consider readability, maintainability, and unusual input conditions. A reliable solution balances performance with code that other people can understand and update.

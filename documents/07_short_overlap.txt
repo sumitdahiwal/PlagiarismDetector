@@ -1,0 +1,3 @@
+Arrays and Linked Lists
+
+Arrays store elements in indexed positions, making it convenient to retrieve an item directly. Linked lists connect elements through references and can be useful when the collection changes frequently. Both structures have advantages, so the choice depends on the requirements of the task.
