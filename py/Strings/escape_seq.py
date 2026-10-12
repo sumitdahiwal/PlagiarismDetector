@@ -1,0 +1,12 @@
+a = 'sumit is good boy\nbut not \tas a \"shubham\"'
+print(a)
+print("\u2764")
+print("\U0001F600")
+print("Hello\0World")
+print("Hello\vWorld")
+print("Hel\blo")
+print("Hello\fWorld")
+print("Hello\rWorld")
+print("Hello\bWorld")
+print("Hello\tWorld")
+print("Hello\nWorld")

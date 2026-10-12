@@ -26,7 +26,7 @@ const int SHINGLE_SIZE = 3;
 
 const int TOP_K = 5;
 
-const double PLAGIARISM_THRESHOLD = 30.0;
+const double PLAGIARISM_THRESHOLD = 60.0;
 
 const double WORD_WEIGHT = 0.40;
 
@@ -1499,6 +1499,14 @@ void runFairPerformanceBenchmark() {
 
 
         cout << "\n";
+
+           cout << "BENCHMARK_DATA: "
+               << n
+               << ","
+               << naiveTime
+               << ","
+               << efficientTime
+               << "\n";
     }
 
 
@@ -1924,7 +1932,7 @@ int main() {
     // EFFICIENT ANALYSIS
     // ============================================
 
-    cout << "===== EFFICIENT PLAGIARISM ANALYSIS =====\n\n";
+    cout << "===== COMPLETE PAIR SIMILARITY ANALYSIS =====\n\n";
 
 
     vector<SimilarityResult>
@@ -1932,20 +1940,17 @@ int main() {
 
 
     for (
-        set<pair<int, int> >::iterator it =
-            candidatePairs.begin();
-
-        it != candidatePairs.end();
-
-        ++it
+        size_t pairIndex = 0;
+        pairIndex < allPairs.size();
+        pairIndex++
     ) {
 
         int doc1 =
-            it->first;
+            allPairs[pairIndex].first;
 
 
         int doc2 =
-            it->second;
+            allPairs[pairIndex].second;
 
 
         double wordSimilarity =
@@ -2127,14 +2132,48 @@ int main() {
     // DETAILED REPORT
     // ============================================
 
-    if (
-        !results.empty()
+    cout << "===== DETAILED PLAGIARISM REPORT =====\n\n";
+
+    bool hasThresholdResult = false;
+
+    for (
+        size_t i = 0;
+        i < results.size();
+        i++
     ) {
 
-        printDetailedReport(
-            results[0],
-            filenames
-        );
+        if (
+            results[i].finalScore <
+            PLAGIARISM_THRESHOLD
+        ) {
+
+            continue;
+        }
+
+        hasThresholdResult = true;
+
+        cout << "Document A: "
+             << filenames[results[i].doc1]
+             << "\n";
+
+        cout << "Document B: "
+             << filenames[results[i].doc2]
+             << "\n";
+
+        cout << "Final Score: "
+             << fixed
+             << setprecision(2)
+             << results[i].finalScore
+             << "%\n";
+
+        cout << "Decision: "
+             << getStatus(results[i].finalScore)
+             << "\n\n";
+    }
+
+    if (!hasThresholdResult) {
+
+        cout << "No document pairs crossed the plagiarism threshold.\n\n";
     }
 
 

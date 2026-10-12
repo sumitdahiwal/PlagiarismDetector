@@ -775,8 +775,215 @@ document.addEventListener("DOMContentLoaded", function () {
                 : "-";
 
 
-        createResultSummary(output);
+        createAllResultSections(output);
+        renderPerformanceChart(output);
 
+    }
+
+
+    // ========================================
+    // RENDER ALL PAIRS AND PERFORMANCE DATA
+    // ========================================
+
+    function createAllResultSections(output) {
+
+        const detailedSectionMatch =
+            output.match(
+                /===== DETAILED PLAGIARISM REPORT =====\s*([\s\S]*?)(?=\n===== FINAL SUMMARY =====)/
+            );
+
+        const detailedSection =
+            detailedSectionMatch
+                ? detailedSectionMatch[1]
+                : "";
+
+        const detailedPairs = [];
+        const thresholdMatch =
+            output.match(/Plagiarism threshold:\s*([\d.]+)%/);
+        const plagiarismThreshold =
+            thresholdMatch ? Number(thresholdMatch[1]) : 60;
+        const detailedPairPattern =
+            /Document A:\s*(.*?)\r?\nDocument B:\s*(.*?)\r?\nFinal Score:\s*([\d.]+)%\r?\nDecision:\s*(.*?)(?=\r?\n\s*\r?\n|$)/g;
+
+        let detailMatch;
+        while ((detailMatch = detailedPairPattern.exec(detailedSection)) !== null) {
+            detailedPairs.push({
+                documentA: detailMatch[1].trim(),
+                documentB: detailMatch[2].trim(),
+                score: Number(detailMatch[3]),
+                decision: detailMatch[4].trim()
+            });
+        }
+
+        const topSectionMatch =
+            output.match(
+                /===== TOP \d+ MOST SIMILAR PAIRS =====\s*([\s\S]*?)(?=\n========================================\n FAIR PERFORMANCE BENCHMARK)/
+            );
+
+        const topSection =
+            topSectionMatch
+                ? topSectionMatch[1]
+                : "";
+
+        const topPairs = [];
+        const topPairPattern =
+            /^\s*\d+\.\s*(.*?)\s+vs\s+(.*?)\r?\n\s*Final Score:\s*([\d.]+)%\r?\n\s*Status:\s*(.*?)\s*$/gm;
+
+        let topMatch;
+        while ((topMatch = topPairPattern.exec(topSection)) !== null) {
+            topPairs.push({
+                documentA: topMatch[1].trim(),
+                documentB: topMatch[2].trim(),
+                score: Number(topMatch[3]),
+                status: topMatch[4].trim()
+            });
+        }
+
+        let html = "";
+
+        if (detailedPairs.length > 0) {
+            html += `
+                <div class="detail-list">
+                    <h4 class="results-section-title">Detailed Plagiarism Report</h4>
+                    ${detailedPairs.map(function (pair) {
+                        return `
+                            <article class="detail-card">
+                                <div class="detail-header">
+                                    <h4>${escapeHtml(classifyScore(pair.score))}</h4>
+                                    <span class="detail-score">${pair.score.toFixed(2)}%</span>
+                                </div>
+                                <div class="detail-documents">
+                                    <div class="detail-document">
+                                        <span>Document 1</span>
+                                        <strong>📄 ${escapeHtml(pair.documentA)}</strong>
+                                    </div>
+                                    <div class="detail-vs">VS</div>
+                                    <div class="detail-document">
+                                        <span>Document 2</span>
+                                        <strong>📄 ${escapeHtml(pair.documentB)}</strong>
+                                    </div>
+                                </div>
+                                <div class="decision-box">
+                                    <strong>Decision:</strong> ${escapeHtml(pair.decision)}
+                                    <span class="threshold-value">Threshold: ${plagiarismThreshold.toFixed(2)}%</span>
+                                </div>
+                            </article>
+                        `;
+                    }).join("")}
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="threshold-empty">
+                    No document pairs crossed the plagiarism threshold.
+                </div>
+            `;
+        }
+
+        html += `
+            <section class="top-pairs-section">
+                <h4 class="results-section-title">Top 5 Most Similar Document Pairs</h4>
+                ${topPairs.length === 0
+                    ? '<p class="threshold-empty">No document pairs are available to compare.</p>'
+                    : topPairs.map(function (pair, index) {
+                        return `
+                            <article class="pair-card">
+                                <div class="pair-header">
+                                    <h4>${index + 1}. ${escapeHtml(classifyScore(pair.score))}</h4>
+                                    <span class="score-badge">${pair.score.toFixed(2)}%</span>
+                                </div>
+                                <div class="documents">
+                                    <div class="document">📄 ${escapeHtml(pair.documentA)}</div>
+                                    <div class="vs">VS</div>
+                                    <div class="document">📄 ${escapeHtml(pair.documentB)}</div>
+                                </div>
+                                <div class="pair-status">${escapeHtml(pair.status)}</div>
+                            </article>
+                        `;
+                    }).join("")}
+            </section>
+        `;
+
+        results.innerHTML = html;
+    }
+
+
+    function classifyScore(score) {
+
+        if (score < 30) return "Low Similarity";
+        if (score < 50) return "Moderate Similarity";
+        if (score < 70) return "Suspicious / Review";
+        if (score < 85) return "High Similarity";
+        return "Very High Similarity";
+    }
+
+
+    function renderPerformanceChart(output) {
+
+        const chart = document.getElementById("performanceChart");
+        const benchmarkRows = Array.from(
+            output.matchAll(/BENCHMARK_DATA:\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/g),
+            function (match) {
+                return {
+                    documents: Number(match[1]),
+                    naive: Number(match[2]),
+                    optimized: Number(match[3])
+                };
+            }
+        );
+
+        if (!chart || benchmarkRows.length === 0) {
+            if (chart) {
+                chart.innerHTML = '<div class="chart-empty">No benchmark data was returned.</div>';
+            }
+            return;
+        }
+
+        const width = 760;
+        const height = 340;
+        const margin = { top: 28, right: 26, bottom: 52, left: 70 };
+        const plotWidth = width - margin.left - margin.right;
+        const plotHeight = height - margin.top - margin.bottom;
+        const maxTime = Math.max(1, ...benchmarkRows.map(row => Math.max(row.naive, row.optimized)));
+        const x = index => margin.left + (benchmarkRows.length === 1
+            ? plotWidth / 2
+            : index * plotWidth / (benchmarkRows.length - 1));
+        const y = value => margin.top + plotHeight - value / maxTime * plotHeight;
+        const naivePoints = benchmarkRows.map((row, index) => `${x(index)},${y(row.naive)}`).join(" ");
+        const optimizedPoints = benchmarkRows.map((row, index) => `${x(index)},${y(row.optimized)}`).join(" ");
+        const gridLines = Array.from({ length: 5 }, function (_, index) {
+            const value = maxTime * (4 - index) / 4;
+            const lineY = y(value);
+            return `
+                <line x1="${margin.left}" y1="${lineY}" x2="${width - margin.right}" y2="${lineY}" class="chart-grid" />
+                <text x="${margin.left - 10}" y="${lineY + 4}" class="chart-axis-label" text-anchor="end">${Math.round(value)}</text>
+            `;
+        }).join("");
+        const xLabels = benchmarkRows.map((row, index) => `
+            <text x="${x(index)}" y="${height - 20}" class="chart-axis-label" text-anchor="middle">${row.documents}</text>
+        `).join("");
+        const points = benchmarkRows.map((row, index) => `
+            <circle cx="${x(index)}" cy="${y(row.naive)}" r="4" class="chart-point-naive"><title>${row.documents} documents: naive ${row.naive} μs</title></circle>
+            <circle cx="${x(index)}" cy="${y(row.optimized)}" r="4" class="chart-point-optimized"><title>${row.documents} documents: optimized ${row.optimized} μs</title></circle>
+        `).join("");
+
+        chart.innerHTML = `
+            <div class="chart-legend">
+                <span><i class="legend-swatch naive"></i>Naive execution time</span>
+                <span><i class="legend-swatch optimized"></i>Optimized execution time</span>
+            </div>
+            <svg class="performance-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Naive and optimized execution time by document count, in microseconds">
+                ${gridLines}
+                <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}" class="chart-axis" />
+                <line x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}" class="chart-axis" />
+                <polyline points="${naivePoints}" class="chart-line-naive" />
+                <polyline points="${optimizedPoints}" class="chart-line-optimized" />
+                ${points}
+                ${xLabels}
+                <text x="18" y="${margin.top + plotHeight / 2}" class="chart-title" transform="rotate(-90 18 ${margin.top + plotHeight / 2})" text-anchor="middle">Execution time (μs)</text>
+                <text x="${margin.left + plotWidth / 2}" y="${height - 3}" class="chart-title" text-anchor="middle">Document count</text>
+            </svg>
+        `;
     }
 
 
